@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Manajemen Perpustakaan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: #1e40af;
+      color: white;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .navbar-brand span.icon { font-size: 1.4rem; }
+    .navbar-info { font-size: 0.8rem; opacity: 0.8; }
+
+    /* LAYOUT */
+    .container {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+    .stat-icon.blue { background: #dbeafe; }
+    .stat-icon.green { background: #d1fae5; }
+    .stat-icon.yellow { background: #fef3c7; }
+    .stat-label { font-size: 0.78rem; color: #6b7280; margin-bottom: 2px; }
+    .stat-val { font-size: 1.6rem; font-weight: 700; color: #1a202c; }
+
+    /* MAIN CARD */
+    .main-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      gap: 1rem;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; color: #1a202c; }
+
+    /* FORM */
+    .form-section {
+      padding: 1.5rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .form-section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 1rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #1a202c;
+      background: white;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .form-actions { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+    .btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: #1e40af; color: white; }
+    .btn-primary:hover { background: #1d3a9e; }
+    .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
+
+    /* TABLE */
+    .search-bar {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .search-input-wrap { position: relative; flex: 1; }
+    .search-input-wrap span {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 1rem;
+    }
+    .search-input-wrap input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      outline: none;
+    }
+    .search-input-wrap input:focus { border-color: #3b82f6; }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      outline: none;
+      background: white;
+      color: #374151;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    tbody tr { border-bottom: 1px solid #f3f4f6; transition: background 0.1s; }
+    tbody tr:hover { background: #f8fafc; }
+    tbody td { padding: 12px 16px; font-size: 0.875rem; color: #374151; vertical-align: middle; }
+    .no-id { color: #9ca3af; font-size: 0.8rem; }
+    .book-title-cell { font-weight: 500; color: #1a202c; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .actions-cell { display: flex; gap: 6px; }
+
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+    .empty-state span { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #9ca3af;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 1rem; }
+      .container { margin: 1rem auto; }
+      .card-header { flex-direction: column; align-items: flex-start; }
+      tbody td { padding: 10px 10px; }
+      thead th { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="icon">📚</span>
+      Sistem Manajemen Perpustakaan
+    </div>
+    <div class="navbar-info">Tugas Portfolio — CRUD Sederhana</div>
+  </nav>
+
+  <div class="container">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📖</div>
+        <div>
+          <div class="stat-label">Total Buku</div>
+          <div class="stat-val" id="stat-total">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+          <div class="stat-label">Tersedia</div>
+          <div class="stat-val" id="stat-avail">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow">🔖</div>
+        <div>
+          <div class="stat-label">Dipinjam</div>
+          <div class="stat-val" id="stat-loan">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="main-card" style="margin-bottom: 1.5rem;">
+      <div class="form-section">
+        <h3 id="form-title">➕ Tambah Buku Baru</h3>
+        <input type="hidden" id="edit-id">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Judul Buku *</label>
+            <input type="text" id="f-title" placeholder="Masukkan judul buku">
+          </div>
+          <div class="form-group">
+            <label>Pengarang *</label>
+            <input type="text" id="f-author" placeholder="Nama pengarang">
+          </div>
+          <div class="form-group">
+            <label>Tahun Terbit</label>
+            <input type="number" id="f-year" placeholder="2024" min="1900" max="2099">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="f-category">
+              <option value="Umum">Umum</option>
+              <option value="Teknologi">Teknologi</option>
+              <option value="Sains">Sains</option>
+              <option value="Sastra">Sastra</option>
+              <option value="Sejarah">Sejarah</option>
+              <option value="Bisnis">Bisnis</option>
+              <option value="Pendidikan">Pendidikan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="f-status">
+              <option value="Tersedia">Tersedia</option>
+              <option value="Dipinjam">Dipinjam</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveBook()">
+            💾 <span id="btn-label">Simpan Buku</span>
+          </button>
+          <button class="btn btn-secondary" id="btn-cancel" onclick="cancelEdit()" style="display:none;">
+            ✕ Batal Edit
+          </button>
+          <button class="btn btn-secondary" onclick="clearForm()">
+            🔄 Reset Form
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="main-card">
+      <div class="card-header">
+        <div class="card-title">📋 Daftar Koleksi Buku</div>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Cari judul atau pengarang..." oninput="renderTable()">
+        </div>
+        <select class="filter-select" id="filter-cat" onchange="renderTable()">
+          <option value="">Semua Kategori</option>
+          <option value="Umum">Umum</option>
+          <option value="Teknologi">Teknologi</option>
+          <option value="Sains">Sains</option>
+          <option value="Sastra">Sastra</option>
+          <option value="Sejarah">Sejarah</option>
+          <option value="Bisnis">Bisnis</option>
+          <option value="Pendidikan">Pendidikan</option>
+        </select>
+        <select class="filter-select" id="filter-status" onchange="renderTable()">
+          <option value="">Semua Status</option>
+          <option value="Tersedia">Tersedia</option>
+          <option value="Dipinjam">Dipinjam</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Judul Buku</th>
+              <th>Pengarang</th>
+              <th>Tahun</th>
+              <th>Kategori</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      Sistem Manajemen Perpustakaan &copy; 2024 — Dibuat dengan HTML, CSS &amp; JavaScript
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let books = [
+      { id: 1, title: "Pemrograman Web dengan PHP", author: "Ahmad Setiawan", year: 2022, category: "Teknologi", status: "Tersedia" },
+      { id: 2, title: "Basis Data Modern", author: "Siti Rahayu", year: 2021, category: "Teknologi", status: "Dipinjam" },
+      { id: 3, title: "Algoritma dan Struktur Data", author: "Budi Santoso", year: 2023, category: "Teknologi", status: "Tersedia" },
+      { id: 4, title: "Matematika Diskrit", author: "Dewi Kusuma", year: 2020, category: "Sains", status: "Tersedia" },
+      { id: 5, title: "Pengantar Jaringan Komputer", author: "Raka Pratama", year: 2022, category: "Teknologi", status: "Dipinjam" },
+    ];
+    let nextId = 6;
+
+    function saveBook() {
+      const title  = document.getElementById('f-title').value.trim();
+      const author = document.getElementById('f-author').value.trim();
+      const year   = parseInt(document.getElementById('f-year').value) || new Date().getFullYear();
+      const cat    = document.getElementById('f-category').value;
+      const status = document.getElementById('f-status').value;
+      const editId = document.getElementById('edit-id').value;
+
+      if (!title || !author) { showToast('⚠️ Judul dan pengarang wajib diisi!'); return; }
+
+      if (editId) {
+        const idx = books.findIndex(b => b.id == editId);
+        if (idx !== -1) books[idx] = { id: parseInt(editId), title, author, year, category: cat, status };
+        showToast('✅ Buku berhasil diperbarui!');
+        cancelEdit();
+      } else {
+        books.push({ id: nextId++, title, author, year, category: cat, status });
+        showToast('✅ Buku berhasil ditambahkan!');
+        clearForm();
+      }
+      renderTable();
+    }
+
+    function editBook(id) {
+      const b = books.find(b => b.id === id);
+      if (!b) return;
+      document.getElementById('edit-id').value = b.id;
+      document.getElementById('f-title').value = b.title;
+      document.getElementById('f-author').value = b.author;
+      document.getElementById('f-year').value = b.year;
+      document.getElementById('f-category').value = b.category;
+      document.getElementById('f-status').value = b.status;
+      document.getElementById('form-title').textContent = '✏️ Edit Data Buku';
+      document.getElementById('btn-label').textContent = 'Perbarui Buku';
+      document.getElementById('btn-cancel').style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteBook(id) {
+      if (!confirm('Apakah Anda yakin ingin menghapus buku ini?')) return;
+      books = books.filter(b => b.id !== id);
+      showToast('🗑️ Buku berhasil dihapus!');
+      renderTable();
+    }
+
+    function cancelEdit() {
+      clearForm();
+      document.getElementById('form-title').textContent = '➕ Tambah Buku Baru';
+      document.getElementById('btn-label').textContent = 'Simpan Buku';
+      document.getElementById('btn-cancel').style.display = 'none';
+      document.getElementById('edit-id').value = '';
+    }
+
+    function clearForm() {
+      ['f-title','f-author','f-year'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-category').value = 'Umum';
+      document.getElementById('f-status').value = 'Tersedia';
+    }
+
+    function renderTable() {
+      const q      = document.getElementById('search-input').value.toLowerCase();
+      const cat    = document.getElementById('filter-cat').value;
+      const status = document.getElementById('filter-status').value;
+
+      let filtered = books.filter(b => {
+        const matchQ = b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
+        const matchC = !cat || b.category === cat;
+        const matchS = !status || b.status === status;
+        return matchQ && matchC && matchS;
+      });
+
+      document.getElementById('stat-total').textContent = books.length;
+      document.getElementById('stat-avail').textContent = books.filter(b => b.status === 'Tersedia').length;
+      document.getElementById('stat-loan').textContent  = books.filter(b => b.status === 'Dipinjam').length;
+
+      const tbody = document.getElementById('table-body');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span>📭</span>Tidak ada data buku ditemukan</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((b, i) => `
+        <tr>
+          <td class="no-id">${i + 1}</td>
+          <td class="book-title-cell">${b.title}</td>
+          <td>${b.author}</td>
+          <td>${b.year}</td>
+          <td><span class="badge badge-blue">${b.category}</span></td>
+          <td><span class="badge ${b.status === 'Tersedia' ? 'badge-green' : 'badge-yellow'}">${b.status}</span></td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-warning btn-sm" onclick="editBook(${b.id})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteBook(${b.id})">🗑️ Hapus</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    renderTable();
+  </script>
+
+</body>
+</html>
