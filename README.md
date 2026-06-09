@@ -18,7 +18,10 @@ Sistem CRUD sederhana untuk mengelola data koleksi buku perpustakaan.
 Buka file `index.html` di browser.
 
 ## Dibuat oleh
-- **Nama:** Nazrey Ridwan Arroshan
-- **NIM:** 230050172
+| Nama | NIM |
+|------|-----|
+| Nazrey Ridwan Arroshan | 230050172 |
+| Muhammad Andi Suryawan | 230050133 |
+
 - **Mata Kuliah:** Pengembangan Portofolio
 - **Dosen:** Ni Luh Ratniasih, S.Kom., M.T.
