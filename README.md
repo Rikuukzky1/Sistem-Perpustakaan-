@@ -18,4 +18,7 @@ Sistem CRUD sederhana untuk mengelola data koleksi buku perpustakaan.
 Buka file `index.html` di browser.
 
 ## Dibuat oleh
-Nama kamu — Tugas Portfolio
+- **Nama:** Nazrey Ridwan Arroshan
+- **NIM:** 230050172
+- **Mata Kuliah:** Pengembangan Portofolio
+- **Dosen:** Ni Luh Ratniasih, S.Kom., M.T.
